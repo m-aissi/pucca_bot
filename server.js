@@ -49,8 +49,8 @@ app.get('/api/puccaInputs/heure/:heure', async (req, res) => {
 });
 
 // Démarre le serveur sur le port 3000
-app.listen(3000, () => {
-  console.log('Server running on port 3000');
+app.listen(3000, '0.0.0.0', () => {
+  console.log('Server running on port 3000 (accessible from all interfaces)');
 });
 
 //update/insert element in dailyfood collectio
