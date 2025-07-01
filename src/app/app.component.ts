@@ -1,5 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import TypeIt from "typeit";
+declare var particlesJS: any;
+import { HttpClient } from '@angular/common/http';
+import { first } from 'rxjs';
+import { PuccaInput } from './class/pucca-input.model';
 
 @Component({
   selector: 'app-root',
@@ -8,25 +12,103 @@ import TypeIt from "typeit";
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'pucca_bot';
+  constructor(private http: HttpClient) {}
 
+  puccaToDisplay : any;
 
   currentTime = new Date().toLocaleTimeString();
+  firstHourRegistered : any;
 
   ngOnInit() {
-    setInterval(() => {
-      this.currentTime = new Date().toLocaleTimeString();
-    }, 1000);
 
 
-    new TypeIt("#element",{speed: 55})
-    .type("Salut c moi Pucca Crimson Tears, enchantée")
-    .delete()
-    .type("Plus a little more.")
-    .go();
+    this.initClock();
+  }
+
+
+
+  getPuccaInputsByHeure(heure: number) {
+    this.http.get<any[]>(`http://192.168.1.90:3000/api/puccaInputs/heure/${heure}`)
+      .subscribe({
+        next: (inputs) => {
+          console.log(`PuccaInputs pour l'heure ${heure}:`, inputs)
+          const first = inputs[0];
+
+          this.puccaToDisplay = new PuccaInput(
+            first.sentences,
+            first.color,
+            first.backgroundColor,
+            first.heures
+          );
+
+          new TypeIt("#element",{
+            speed: 55,
+            breakLines:false,
+            strings:this.puccaToDisplay.sentences
+          })
+          .go();
+          
+          console.log(this.puccaToDisplay)
+          this.initParticleJs(this.puccaToDisplay.color);
+          // Change la couleur de fond du main-container
+          // const mainContainer = document.getElementById('main-container');
+          // if (mainContainer) {
+          //   mainContainer.style.backgroundColor = this.puccaToDisplay.backgroundColor;
+          // }
+
+          
+        },
+        error: (err) => console.error('Erreur lors du GET filtré', err)
+      });
 
 
   }
+
+  initParticleJs(color?: string){
+    // Charger la config JSON
+    fetch('assets/particles.json')
+      .then(res => res.json())
+      .then(config => {
+        if (color) {
+          config.particles.color.value = color;
+        }
+        particlesJS('particles-js', config);
+      });
+  }
+
+  initClock(){
+    setInterval(() => {
+      this.currentTime = new Date().toLocaleTimeString();
+      const currentHour = this.currentTime.split(":",1)
+      if (this.firstHourRegistered == undefined){
+        this.firstHourRegistered = currentHour;
+        this.getPuccaInputsByHeure(Number(currentHour));
+      }
+
+      if (Number(this.firstHourRegistered) !== Number(currentHour)){
+        console.log("changement d'heure")
+        this.firstHourRegistered = currentHour;
+        this.getPuccaInputsByHeure(Number(currentHour));
+      }
+      else{
+        console.log(" pas changemen ")
+      }
+    
+      // ;
+
+    }, 1000);
+  }
+// const puccaInput = {
+//   sentences: ["Coucou !", "Il est l'heure de coder.", "Bonne chance !"],
+//   color: "#ff69b4",
+//   heures: [8, 12]
+// };
+
+// this.http.post('http://192.168.1.90:3000/api/puccaInputs', puccaInput)
+//   .subscribe({
+//     next: (res) => console.log('Ajout réussi', res),
+//     error: (err) => console.error('Erreur lors de l\'ajout', err)
+// });
 // rainbowtext
   // new TypeIt("#callback", {
   //   strings: ["Look, it's rainbow text!"],

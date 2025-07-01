@@ -1,0 +1,8 @@
+Cree une classe Pucca input pour custom le print de pucca en fonction de cette input
+
+donc etape 1 :
+on cree la puccainput apres l'avoir recu
+
+etape 2 on init pucca avec les inputs reçus
+
+etape 3 on verifie si l'heure a changer, si oui on change la pucca input
