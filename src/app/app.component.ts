@@ -20,8 +20,6 @@ export class AppComponent {
   firstHourRegistered : any;
 
   ngOnInit() {
-
-
     this.initClock();
   }
 
@@ -51,10 +49,10 @@ export class AppComponent {
           console.log(this.puccaToDisplay)
           this.initParticleJs(this.puccaToDisplay.color);
           // Change la couleur de fond du main-container
-          // const mainContainer = document.getElementById('main-container');
-          // if (mainContainer) {
-          //   mainContainer.style.backgroundColor = this.puccaToDisplay.backgroundColor;
-          // }
+          const mainContainer = document.getElementById('main-container');
+          if (mainContainer) {
+            mainContainer.style.backgroundColor = this.puccaToDisplay.backgroundColor;
+          }
 
           
         },
@@ -97,7 +95,8 @@ export class AppComponent {
       // ;
 
     }, 1000);
-  }
+  } 
+
 // const puccaInput = {
 //   sentences: ["Coucou !", "Il est l'heure de coder.", "Bonne chance !"],
 //   color: "#ff69b4",
