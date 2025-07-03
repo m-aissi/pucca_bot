@@ -26,7 +26,7 @@ export class AppComponent {
 
 
   getPuccaInputsByHeure(heure: number) {
-    this.http.get<any[]>(`http://192.168.1.90:3000/api/puccaInputs/heure/${heure}`)
+    this.http.get<any[]>(`http://176.186.145.154:3000/api/puccaInputs/heure/${heure}`)
       .subscribe({
         next: (inputs) => {
           console.log(`PuccaInputs pour l'heure ${heure}:`, inputs)
