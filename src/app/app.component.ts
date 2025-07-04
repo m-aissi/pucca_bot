@@ -4,6 +4,7 @@ declare var particlesJS: any;
 import { HttpClient } from '@angular/common/http';
 import { first } from 'rxjs';
 import { PuccaInput } from './class/pucca-input.model';
+import { PatchNoteModalComponent } from './patch-note-modal/patch-note-modal.component';
 
 @Component({
   selector: 'app-root',
@@ -23,7 +24,6 @@ export class AppComponent {
     this.logConnexion();
     this.initClock();
   }
-
 
   getPuccaInputsByHeure(heure: number) {
     this.http.get<any[]>(`http://176.186.145.154:3000/api/puccaInputs/heure/${heure}`)

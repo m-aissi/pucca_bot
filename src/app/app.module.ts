@@ -4,10 +4,12 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { PatchNoteModalComponent } from './patch-note-modal/patch-note-modal.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    PatchNoteModalComponent
   ],
   imports: [
     BrowserModule,
