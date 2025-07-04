@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-patch-note-modal',
@@ -7,15 +8,15 @@ import { Component } from '@angular/core';
   styleUrl: './patch-note-modal.component.css'
 })
 export class PatchNoteModalComponent {
-  ngOnInit() {
-    const myModal = document.getElementById('myModal')
-    const myInput = document.getElementById('myInput');
-  
-    if (myModal && myInput) {
-      myModal.addEventListener('shown.bs.modal', () => {
-        myInput.focus();
-      });
-    }
-  }
+  constructor(private dialog: MatDialog) {}
 
+  openModal() {
+    this.dialog.open(PatchNoteModalComponent, {
+      width: '500px',
+      data: {
+        // Tu peux passer des données ici si besoin
+        title: 'Patch Note v1.2'
+      }
+    });
+  }
 }

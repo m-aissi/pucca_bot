@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { first } from 'rxjs';
 import { PuccaInput } from './class/pucca-input.model';
 import { PatchNoteModalComponent } from './patch-note-modal/patch-note-modal.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +14,7 @@ import { PatchNoteModalComponent } from './patch-note-modal/patch-note-modal.com
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private dialog: MatDialog) {}
 
   puccaToDisplay : any;
 
@@ -25,6 +26,12 @@ export class AppComponent {
     this.initClock();
   }
 
+  openPatchNotes(): void {
+    this.dialog.open(PatchNoteModalComponent, {
+      width: '400px', // tu peux ajuster
+      disableClose: false
+    });
+  }
   getPuccaInputsByHeure(heure: number) {
     this.http.get<any[]>(`http://176.186.145.154:3000/api/puccaInputs/heure/${heure}`)
       .subscribe({
