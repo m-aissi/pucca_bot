@@ -24,23 +24,6 @@ export class AppComponent {
     this.initClock();
   }
 
-  logConnexion() {
-    const userAgent = navigator.userAgent;
-    let device = 'Unknown';
-    if (/iphone/i.test(userAgent)) device = 'iPhone';
-    else if (/android/i.test(userAgent)) device = 'Android';
-    else if (/windows/i.test(userAgent)) device = 'Windows PC';
-    else if (/macintosh|mac os x/i.test(userAgent)) device = 'Mac';
-    else if (/linux/i.test(userAgent)) device = 'Linux';
-    this.http.post('http://176.186.145.154:3000/api/login', {
-      userAgent,
-      device
-    }).subscribe({
-      next: (res) => console.log('Connexion loggée', res),
-      error: (err) => console.error('Erreur lors du log de connexion', err)
-    });
-  }
-
 
   getPuccaInputsByHeure(heure: number) {
     this.http.get<any[]>(`http://176.186.145.154:3000/api/puccaInputs/heure/${heure}`)
@@ -53,7 +36,8 @@ export class AppComponent {
             first.sentences,
             first.color,
             first.backgroundColor,
-            first.heures
+            first.heures,
+            first.fontColor
           );
 
           new TypeIt("#element",{
@@ -69,12 +53,7 @@ export class AppComponent {
           const mainContainer = document.getElementById('main-container');
           if (mainContainer) {
             mainContainer.style.backgroundColor = this.puccaToDisplay.backgroundColor;
-            let blackModeHours = [5,6,7,8,9,10,11,12,13,14,15];
-            if (blackModeHours.includes(heure)) {
-              mainContainer.style.color = 'black';
-            } else {
-              mainContainer.style.color = 'white';
-            }
+            mainContainer.style.color = this.puccaToDisplay.fontColor;
           }
 
           
@@ -111,14 +90,27 @@ export class AppComponent {
         this.firstHourRegistered = currentHour;
         this.getPuccaInputsByHeure(Number(currentHour));
       }
-      else{
-        console.log(" pas changemen ")
-      }
-    
-      // ;
-
+  
     }, 1000);
   } 
+
+
+  logConnexion() {
+    const userAgent = navigator.userAgent;
+    let device = 'Unknown';
+    if (/iphone/i.test(userAgent)) device = 'iPhone';
+    else if (/android/i.test(userAgent)) device = 'Android';
+    else if (/windows/i.test(userAgent)) device = 'Windows PC';
+    else if (/macintosh|mac os x/i.test(userAgent)) device = 'Mac';
+    else if (/linux/i.test(userAgent)) device = 'Linux';
+    this.http.post('http://176.186.145.154:3000/api/login', {
+      userAgent,
+      device
+    }).subscribe({
+      next: (res) => console.log('Connexion loggée', res),
+      error: (err) => console.error('Erreur lors du log de connexion', err)
+    });
+  }
 
 // const puccaInput = {
 //   sentences: ["Coucou !", "Il est l'heure de coder.", "Bonne chance !"],

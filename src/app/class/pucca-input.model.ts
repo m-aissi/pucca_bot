@@ -3,6 +3,7 @@ export class PuccaInput {
       public sentences: string[],
       public color: string,
       public backgroundColor: string,
-      public heures: number[]
+      public heures: number[],
+      public fontColor: string
     ) {}
   }

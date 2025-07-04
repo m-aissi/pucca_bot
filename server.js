@@ -11,32 +11,114 @@ const app = express();
 app.use(cors());                          // Active CORS pour toutes les routes
 app.use(express.json());                  // Permet de lire le JSON des requêtes
 
-// Suppression du middleware global de log de connexion
 // Ajout d'un endpoint POST /api/login pour logger la connexion
 app.post('/api/login', async (req, res) => {
   try {
-    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    // Récupération de l'IP avec plus de sources possibles
+    const ip = req.headers['x-forwarded-for'] || 
+               req.headers['x-real-ip'] || 
+               req.connection.remoteAddress || 
+               req.socket.remoteAddress ||
+               (req.connection.socket ? req.connection.socket.remoteAddress : null);
+    
+    console.log('🔍 IP détectée:', ip);
+    
     const userAgent = req.body.userAgent || req.headers['user-agent'] || '';
     const device = req.body.device || 'Unknown';
+    
+    console.log('📱 Device:', device);
+    console.log('🌐 User Agent:', userAgent);
+    
     // Récupérer la localisation via ip-api.com
     const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
     let location = {};
+    
     try {
-      const response = await fetch(`http://ip-api.com/json/${ip}`);
-      location = await response.json();
+      // Nettoyer l'IP (enlever les préfixes IPv6 si présents)
+      let cleanIP = ip;
+      if (ip && ip.startsWith('::ffff:')) {
+        cleanIP = ip.substring(7);
+      }
+      
+      console.log('🌍 Tentative de géolocalisation pour IP:', cleanIP);
+      
+      // Utiliser HTTPS au lieu de HTTP
+      const geoURL = `https://ip-api.com/json/${cleanIP}?fields=status,message,country,regionName,city,zip,lat,lon,timezone,isp,org,as,query`;
+      console.log('🔗 URL de géolocalisation:', geoURL);
+      
+      const response = await fetch(geoURL, {
+        timeout: 5000, // Timeout de 5 secondes
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; PuccaBot/1.0)'
+        }
+      });
+      
+      console.log('📡 Status de la réponse:', response.status);
+      
+      if (response.ok) {
+        const locationData = await response.json();
+        console.log('📍 Données de localisation reçues:', locationData);
+        
+        if (locationData.status === 'success') {
+          location = {
+            country: locationData.country,
+            region: locationData.regionName,
+            city: locationData.city,
+            zip: locationData.zip,
+            lat: locationData.lat,
+            lon: locationData.lon,
+            timezone: locationData.timezone,
+            isp: locationData.isp,
+            org: locationData.org,
+            as: locationData.as,
+            query: locationData.query
+          };
+          console.log('✅ Géolocalisation réussie');
+        } else {
+          console.log('❌ Erreur API ip-api:', locationData.message);
+          location = { 
+            error: 'API returned failure', 
+            details: locationData.message || 'Unknown API error',
+            ip: cleanIP 
+          };
+        }
+      } else {
+        console.log('❌ Erreur HTTP:', response.status, response.statusText);
+        location = { 
+          error: 'HTTP error', 
+          details: `${response.status} ${response.statusText}`,
+          ip: cleanIP 
+        };
+      }
     } catch (e) {
-      location = { error: 'localisation failed' };
+      console.error('💥 Erreur lors de la géolocalisation:', e);
+      location = { 
+        error: 'localisation failed', 
+        details: e.message || e.toString(),
+        ip: cleanIP 
+      };
     }
-    await mongoose.connection.db.collection('connections').insertOne({
+    
+    // Création de l'objet à insérer
+    const connectionData = {
       ip,
       location,
       device,
       userAgent,
       date: new Date()
-    });
-    res.status(201).json({ message: 'Connexion loggée' });
+    };
+    
+    console.log('💾 Données à sauvegarder:', JSON.stringify(connectionData, null, 2));
+    
+    // Insertion dans la base de données
+    await mongoose.connection.db.collection('connections').insertOne(connectionData);
+    
+    console.log('✅ Connexion sauvegardée avec succès');
+    res.status(201).json({ message: 'success' });
+    
   } catch (e) {
-    res.status(500).json({ message: 'Erreur lors du log de connexion' });
+    console.error('💥 Erreur générale:', e);
+    res.status(500).json({ message: 'Erreur' });
   }
 });
 
