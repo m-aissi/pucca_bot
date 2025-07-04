@@ -11,6 +11,35 @@ const app = express();
 app.use(cors());                          // Active CORS pour toutes les routes
 app.use(express.json());                  // Permet de lire le JSON des requêtes
 
+// Suppression du middleware global de log de connexion
+// Ajout d'un endpoint POST /api/login pour logger la connexion
+app.post('/api/login', async (req, res) => {
+  try {
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const userAgent = req.body.userAgent || req.headers['user-agent'] || '';
+    const device = req.body.device || 'Unknown';
+    // Récupérer la localisation via ip-api.com
+    const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+    let location = {};
+    try {
+      const response = await fetch(`http://ip-api.com/json/${ip}`);
+      location = await response.json();
+    } catch (e) {
+      location = { error: 'localisation failed' };
+    }
+    await mongoose.connection.db.collection('connections').insertOne({
+      ip,
+      location,
+      device,
+      userAgent,
+      date: new Date()
+    });
+    res.status(201).json({ message: 'Connexion loggée' });
+  } catch (e) {
+    res.status(500).json({ message: 'Erreur lors du log de connexion' });
+  }
+});
+
 // Connexion à MongoDB
 mongoose.connect('mongodb://localhost:27017/puccabot');
 

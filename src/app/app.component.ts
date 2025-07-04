@@ -20,9 +20,26 @@ export class AppComponent {
   firstHourRegistered : any;
 
   ngOnInit() {
+    this.logConnexion();
     this.initClock();
   }
 
+  logConnexion() {
+    const userAgent = navigator.userAgent;
+    let device = 'Unknown';
+    if (/iphone/i.test(userAgent)) device = 'iPhone';
+    else if (/android/i.test(userAgent)) device = 'Android';
+    else if (/windows/i.test(userAgent)) device = 'Windows PC';
+    else if (/macintosh|mac os x/i.test(userAgent)) device = 'Mac';
+    else if (/linux/i.test(userAgent)) device = 'Linux';
+    this.http.post('http://176.186.145.154:3000/api/login', {
+      userAgent,
+      device
+    }).subscribe({
+      next: (res) => console.log('Connexion loggée', res),
+      error: (err) => console.error('Erreur lors du log de connexion', err)
+    });
+  }
 
 
   getPuccaInputsByHeure(heure: number) {
