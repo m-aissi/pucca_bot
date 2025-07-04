@@ -7,10 +7,34 @@
         </div>
         <div id="element" class="my-5 fs-3 px-3 text-center" style="font-family: 'Quicksand', cursive;">
         </div>
-        <img class="align-self-start" style="width: auto; height:30vh;" src="img/pucca.png" alt="Pucca">
-        <button color="primary" (click)="openPatchNotes()">
-          Voir les Patch Notes
-        </button>
-              </div>
+        <div class="d-flex align-items-center justify-content-center gap-3">
+          <img class="align-self-start" style="width: auto; height:30vh;" src="img/pucca.png" alt="Pucca">
+          <button type="button" class="btn btn-primary btn-lg" (click)="openModal()">
+            <i class="bi bi-gear-fill me-2"></i>
+            Options
+          </button>
+        </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Bootstrap -->
+<div class="modal fade" id="puccaModal" tabindex="-1" aria-labelledby="puccaModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="puccaModalLabel">Options Pucca</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Bienvenue dans les options de Pucca !</p>
+        <p>Heure actuelle : {{currentTime}}</p>
+        <p>Message affiché : {{puccaToDisplay?.sentences?.join(', ')}}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+        <button type="button" class="btn btn-primary">Sauvegarder</button>
+      </div>
+    </div>
   </div>
 </div>
