@@ -1,4 +1,4 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, ViewChild } from '@angular/core';
 import TypeIt from "typeit";
 declare var particlesJS: any;
 declare var bootstrap: any;
@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { first } from 'rxjs';
 import { PuccaInput } from './class/pucca-input.model';
 import { MatDialog } from '@angular/material/dialog';
+import { PatchNoteModalComponent } from './patch-note-modal/patch-note-modal.component';
 
 @Component({
   selector: 'app-root',
@@ -15,6 +16,8 @@ import { MatDialog } from '@angular/material/dialog';
 })
 export class AppComponent {
   constructor(private http: HttpClient, private dialog: MatDialog) {}
+
+  @ViewChild(PatchNoteModalComponent) patchNoteModal!: PatchNoteModalComponent;
 
   puccaToDisplay : any;
 
@@ -114,8 +117,7 @@ export class AppComponent {
   }
 
   openModal() {
-    const modal = new bootstrap.Modal(document.getElementById('puccaModal'));
-    modal.show();
+    this.patchNoteModal.openModal();
   }
 
 // const puccaInput = {

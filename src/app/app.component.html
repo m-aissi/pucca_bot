@@ -1,5 +1,6 @@
+<div id="particles-js" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;overflow:hidden;"></div>
+
 <div id="main-container">
-  <div id="particles-js" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;overflow:hidden;"></div>
   <div style="position:relative;z-index:1;">
     <div class="d-flex flex-column mb-3" style="height: 100vh;">
         <div class="align-self-center mb-auto mt-5 fw-lighter" style="font-size: 4.5rem; font-family: Montserrat;" id="clock"> 
@@ -7,34 +8,15 @@
         </div>
         <div id="element" class="my-5 fs-3 px-3 text-center" style="font-family: 'Quicksand', cursive;">
         </div>
-        <div class="d-flex align-items-center justify-content-center gap-3">
-          <img class="align-self-start" style="width: auto; height:30vh;" src="img/pucca.png" alt="Pucca">
-          <button type="button" class="btn btn-primary btn-lg" (click)="openModal()">
-            <i class="bi bi-gear-fill me-2"></i>
-            Options
+        <div class="d-flex align-items-end justify-content-between gap-3">
+          <img style="width: auto; height:30vh;" src="img/pucca.png" alt="Pucca">
+          <button type="button" class="btn btn-secondary btn-lg mx-4 my-4" (click)="openModal()">
+            <i class="bi bi-question-circle-fill"></i> 
           </button>
         </div>
     </div>
   </div>
 </div>
 
-<!-- Modal Bootstrap -->
-<div class="modal fade" id="puccaModal" tabindex="-1" aria-labelledby="puccaModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="puccaModalLabel">Options Pucca</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p>Bienvenue dans les options de Pucca !</p>
-        <p>Heure actuelle : {{currentTime}}</p>
-        <p>Message affiché : {{puccaToDisplay?.sentences?.join(', ')}}</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-        <button type="button" class="btn btn-primary">Sauvegarder</button>
-      </div>
-    </div>
-  </div>
-</div>
+<app-patch-note-modal >
+</app-patch-note-modal>
