@@ -1,0 +1,34 @@
+.particle-js-container{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100vw;
+    height:100vh;
+    height:100svh;
+    z-index:0
+}
+
+.main-flex-container {
+    height: 100vh;
+    height: 100svh;
+}
+
+
+.clock-container {
+    font-size: 4.5rem; 
+    font-family: Montserrat;
+}
+
+.pucca-dialog-container {
+    font-family: 'Quicksand', cursive;
+}
+
+.main-wrapper {
+    position: relative;
+    z-index: 1;
+}
+
+.pucca-img {
+    width: auto; 
+    height:30vh;
+}

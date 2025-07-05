@@ -1,12 +1,9 @@
 @import 'bootstrap/dist/css/bootstrap.css';
 @import "bootstrap-icons/font/bootstrap-icons.css";
 
-body {
-  min-height: 100vh;
-  /* mobile viewport bug fix */
-  min-height: -webkit-fill-available;
-}
-
-html {
-  height: -webkit-fill-available;
-}
+html, body {
+    height: 100vh;
+    height: 100svh;
+    margin: 0;
+    padding: 0;
+  }
