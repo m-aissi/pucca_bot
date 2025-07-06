@@ -20,7 +20,7 @@ export class AppComponent {
   @ViewChild(PatchNoteModalComponent) patchNoteModal!: PatchNoteModalComponent;
 
   puccaToDisplay : any;
-
+  currentTyping : any;
   currentTime = new Date().toLocaleTimeString();
   firstHourRegistered : any;
 
@@ -44,7 +44,7 @@ export class AppComponent {
             first.fontColor
           );
 
-          new TypeIt("#element",{
+          this.currentTyping = new TypeIt("#element",{
             speed: 45,
             breakLines:false,
             strings:this.puccaToDisplay.sentences
@@ -91,6 +91,7 @@ export class AppComponent {
 
       if (Number(this.firstHourRegistered) !== Number(currentHour)){
         console.log("changement d'heure")
+        this.currentTyping.destroy();
         this.firstHourRegistered = currentHour;
         this.getPuccaInputsByHeure(Number(currentHour));
       }

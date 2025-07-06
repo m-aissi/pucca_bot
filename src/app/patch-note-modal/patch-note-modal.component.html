@@ -4,36 +4,60 @@
     <div class="modal-content">
       <div class="modal-header d-flex justify-content-between">
         <h5 class="modal-title" id="puccaModalLabel">Note de dev</h5>
-        <i class="bi bi-x-lg" data-bs-dismiss="modal" style="cursor: pointer; font-size: 1.2rem;"></i>
+        <i class="bi bi-x-lg" data-bs-dismiss="modal" style="cursor: pointer; font-size: 1.2rem"></i>
       </div>
       <div class="modal-body">
         <div class="card">
-
-        <div class="d-flex justify-content-between m-2"  data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-          <h6 class="text-success">✨ Patch 1.0 - Pucca is the new Coach</h6>
-          <i class="bi bi-chevron-down chevron-icon"></i>
-        </div>
-        <div class="collapse   " id="collapseExample">
-          <ul class="list-unstyled ms-3">
-            <li>• Ajout de Pucca version Lacrima</li>
-            <li>• Horloge en temps réel (๑ᵔ⤙ᵔ๑)</li>
-            <li>• Messages selon l'heure de la journée</li>
-            <li>• Système de couleurs dynamiques </li>
-            <li>• Animations de texte fluidifiés</li>
-            <li>• API REST pour la gestion des messages</li>
-          </ul>
-        </div>
+          <div class="d-flex justify-content-between m-2" data-bs-toggle="collapse" data-bs-target="#collapseExample"
+            aria-expanded="false" aria-controls="collapseExample">
+            <h6 class="text-success">
+              ✨ Patch 1.0 - PuccAwakening ૮₍ ˃ ⤙ ˂ ₎ა
+            </h6>
+            <i id="main-chevron" class="bi bi-chevron-down chevron-icon"></i>
+            </div>
+          <div class="collapse show" id="collapseExample">
+            <ul class="list-unstyled ms-3">
+              <li>• Ajout de Pucca version Lacrima</li>
+              <li>• Horloge en temps réel</li>
+              <li>• Messages selon l'heure de la journée</li>
+              <li>• Système de couleurs dynamiques</li>
+              <li>• Animations de texte fluidifiés</li>
+              <li>• Correction de divers bugs merci de votre patience <3 </li>
+            </ul>
+          </div>
         </div>
       </div>
-      
-      <div class="modal-footer">
-          <!-- form pour laisser une remarque au dev avec champ input ecrire et radio etre recontacté + si yes  -->
-          <div class="form-floating">
-            <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea"></textarea>
-            <label for="floatingTextarea">Un feedback ? </label>
-          </div>
-          <button type="button" class="btn btn-success">Envoyer</button>
 
+      <div class="modal-footer">
+        <div class="d-flex justify-content-between m-2 w-100 float-end" data-bs-toggle="collapse"
+          data-bs-target="#collapseContact" aria-expanded="false" aria-controls="collapseContact">
+          <h6>📝 Contact</h6>
+          <i class="bi bi-chevron-down chevron-icon"></i>
+        </div>
+        <div class="collapse w-100" id="collapseContact">
+          <div class="d-flex flex-column w-100 px-2">
+            <div class="d-flex w-100 flex-row mb-2">
+              <div class="form-floating flex-fill">
+                <textarea (ngModelChange)="onMessageInputChange($event)" [(ngModel)]="messageInput" class="form-control" placeholder="Leave a comment here" id="floatingTextarea"></textarea>
+                <label for="floatingTextarea">Message au dev ? </label>
+              </div>
+              <div class="form-check form-switch d-flex flex-column text-center my-auto">
+                <label for="checkDefault"> Réponse ? </label>
+                <input  (ngModelChange)="onContactInputChange($event)" class="mx-auto form-check-input" type="checkbox" role="switch" value="" id="checkDefault"
+                  [(ngModel)]="contactInput" />
+              </div>
+            </div>
+            <div class="form-floating mb-2" *ngIf="contactInput">
+              <input class="form-control" (ngModelChange)="onContactInfoInputChange($event)" [(ngModel)]="contactInfoInput" type="text" placeholder="Default input" aria-label="default input example" />
+              <label for="floatingTextarea">Comment te recontacter ? </label>
+            </div>
+            <div class="form-floating">
+              <button [disabled]="!isFormValid" (click)="sendMessage()" type="button" class="btn btn-success float-end">
+                Envoyer
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
