@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit, AfterViewInit } from '@angular/core';
 
 @Component({
@@ -13,7 +14,8 @@ export class PatchNoteModalComponent implements OnInit, AfterViewInit {
   messageInput : string ='';
   contactInfoInput : string ='';
   contactInput: boolean = false;
-
+  constructor(private http: HttpClient) {}
+  confirmationMessage: string = '';
   ngOnInit() {
     // Initialisation
   }
@@ -76,8 +78,32 @@ export class PatchNoteModalComponent implements OnInit, AfterViewInit {
     this.updateFormValidity();
   }
 
-  sendMessage(){
-    
+  sendMessage() {
+    const payload: any = {
+      message: this.messageInput,
+      date: new Date()
+    };
+    if (this.contactInput && this.contactInfoInput) {
+      payload.contactInfo = this.contactInfoInput;
+    }
+  
+    this.http.post('http://176.186.145.154:3000/api/msgToDev', payload)
+      .subscribe({
+        next: (res) => {
+          this.confirmationMessage = 'Message envoyé avec succès !';
+          // Réinitialise le formulaire
+          this.messageInput = '';
+          this.contactInput = false;
+          this.contactInfoInput = '';
+          this.updateFormValidity();
+          // Efface le message après 3 secondes
+          setTimeout(() => this.confirmationMessage = '', 3000);
+        },
+        error: (err) => {
+          this.confirmationMessage = 'Erreur lors de l\'envoi du message.';
+          setTimeout(() => this.confirmationMessage = '', 3000);
+        }
+      });
   }
 
 }

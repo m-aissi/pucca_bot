@@ -146,6 +146,16 @@ app.post('/api/puccaInputs', async (req, res) => {
   }
 });
 
+app.post('/api/msgToDev', async (req, res) => {
+  try {
+    const newInput = req.body; // <-- Ajoute cette ligne !
+    const result = await mongoose.connection.db.collection('msgToDevs').insertOne(newInput);
+    res.status(201).json(newInput);         // Renvoie le nouvel aliment avec son ID
+  } catch (error) {
+    res.status(500).json({ message: error.message });  // En cas d'erreur
+  }
+});
+
 // GET /api/puccaInputs/heure/:heure - Récupère les puccaInputs qui contiennent l'heure donnée
 app.get('/api/puccaInputs/heure/:heure', async (req, res) => {
   try {

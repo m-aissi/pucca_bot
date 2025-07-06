@@ -56,6 +56,9 @@
                 Envoyer
               </button>
             </div>
+            <div *ngIf="confirmationMessage" class="text-success text-center py-2 mt-2" style="font-size: 0.95rem;">
+              {{ confirmationMessage }}
+            </div>
           </div>
         </div>
       </div>
