@@ -45,7 +45,7 @@ export class AppComponent {
           );
 
           new TypeIt("#element",{
-            speed: 55,
+            speed: 45,
             breakLines:false,
             strings:this.puccaToDisplay.sentences
           })

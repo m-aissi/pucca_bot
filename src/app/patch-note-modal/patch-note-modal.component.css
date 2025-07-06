@@ -1,0 +1,8 @@
+.chevron-icon {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.chevron-icon.rotated {
+  transform: rotate(180deg);
+}
