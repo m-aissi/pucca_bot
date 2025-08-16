@@ -625,8 +625,8 @@ app.listen(3000, '0.0.0.0', () => {
   console.log('   GET  /api/customLinks/all - Récupérer liens custom');
   console.log('   GET  /custom/:linkId - Redirection avec tracking');
   console.log('   GET  /api/customLinkOpens/all - Récupérer ouvertures liens');
-  console.log('🔗 Liens simplifiés créés:');
-  console.log('   GET  /special - Lien discret pour Nel');
-  console.log('   GET  /exclusive - Lien discret pour Nat');
-  console.log('   GET  /premium - Lien discret pour Nad');
+  console.log('🔗 Liens discrets créés:');
+  console.log('   GET  /moncoeur - Lien discret pour Nel');
+  console.log('   GET  /monamour - Lien discret pour Nat');
+  console.log('   GET  /monchou - Lien discret pour Nad');
 });
