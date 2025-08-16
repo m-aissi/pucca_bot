@@ -1,0 +1,138 @@
+<div id="main-container">
+  <div class="main-wrapper">
+    <!-- Card avec formulaire -->
+    <div class="form-card">
+
+
+      <form>
+        <div id="part1" *ngIf="!step1Validated">
+          <div class="form-group">
+            <label for="name">cc ma belle... *</label>
+            <input type="text" id="name" [(ngModel)]="nameInput" name="name" class="form-control"
+              placeholder="qui es-tu ?" [class.error]="nameInput === '' && nameTouched" (blur)="nameTouched = true"
+              required>
+            <div class="error-message" *ngIf="nameInput === '' && nameTouched">
+              <span>Le nom est requis ma belle</span>
+            </div>
+          </div>
+
+          <button (click)="nextFromName()" type="submit" class="btn-next" [disabled]="nameInput === ''">
+            Suivant
+          </button>
+        </div>
+        <div id="part2" *ngIf="step1Validated && !step2Validated">
+          <div class="form-group">
+            <label for="date">ddd ? :3 *</label>
+
+            <!-- Mini calendrier -->
+            <div class="mini-calendar">
+              <div class="calendar-header">
+                <button type="button" (click)="previousMonth()" class="calendar-nav">‹</button>
+                <h4>{{ currentMonthYear }}</h4>
+                <button type="button" (click)="nextMonth()" class="calendar-nav">›</button>
+              </div>
+
+              <div class="calendar-grid">
+                <div class="calendar-days-header">
+                  <span>Lun</span>
+                  <span>Mar</span>
+                  <span>Mer</span>
+                  <span>Jeu</span>
+                  <span>Ven</span>
+                  <span>Sam</span>
+                  <span>Dim</span>
+                </div>
+
+                <div class="calendar-days">
+                  <div *ngFor="let day of calendarDays" class="calendar-day" [class.other-month]="!day.isCurrentMonth"
+                    [class.selected]="isDateSelected(day.date)" [class.today]="isToday(day.date)"
+                    [class.past]="isPastDate(day.date) || isAfter25th(day.date)" (click)="selectDateFromCalendar(day)">
+                    {{ day.dayNumber }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="error-message" *ngIf="datesSelected.length === 0 && dateTouched">
+              <span>sélectionne au moins une date ma belle</span>
+            </div>
+          </div>
+
+          <button (click)="nextFromDates()" type="button" class="btn-next" [disabled]="datesSelected.length === 0">
+            Suivant
+          </button>
+        </div>
+        <div id="part3" *ngIf="step1Validated && step2Validated && !step3Validated">
+          <div class="form-group">
+            <label>Que veux-tu manger ? :3 *</label>
+
+            <div class="radio-group">
+              <div class="radio-option" *ngFor="let option of foodOptions">
+                <input type="radio" [id]="option.value" name="foodChoice" [value]="option.value"
+                  [(ngModel)]="selectedFood" (change)="onFoodChange()">
+                <label [for]="option.value">{{ option.label }}</label>
+              </div>
+            </div>
+
+            <div class="other-food-input" *ngIf="selectedFood === 'other'">
+              <input type="text" [(ngModel)]="otherFoodInput" name="otherFood" class="form-control"
+                placeholder="Dis-moi ce que tu veux manger..." [class.error]="otherFoodInput === '' && otherFoodTouched"
+                (blur)="otherFoodTouched = true" required>
+              <div class="error-message" *ngIf="otherFoodInput === '' && otherFoodTouched">
+                <span>Dis-moi ce que tu veux manger ma belle</span>
+              </div>
+            </div>
+
+            <div class="error-message" *ngIf="!selectedFood && foodTouched">
+              <span>Choisis ce que tu veux manger ma belle</span>
+            </div>
+          </div>
+
+          <button (click)="nextFromFood()" type="button" class="btn-next" [disabled]="!isFoodValid()">
+            Suivant
+          </button>
+        </div>
+        <div id="part4" *ngIf="step1Validated && step2Validated && step3Validated && !step4Validated">
+          <div class="form-group">
+            <label>Où veux-tu qu'on se retrouve ? :3 *</label>
+
+            <div class="radio-group">
+              <div class="radio-option" *ngFor="let option of locationOptions">
+                <input type="radio" [id]="option.value" name="locationChoice" [value]="option.value"
+                  [(ngModel)]="selectedLocation" (change)="onLocationChange()" [disabled]="option.disabled">
+                <label [for]="option.value" [class.disabled]="option.disabled">{{ option.label }}</label>
+              </div>
+            </div>
+
+            <div class="other-location-input" *ngIf="selectedLocation === 'other'">
+              <input type="text" [(ngModel)]="otherLocationInput" name="otherLocation" class="form-control"
+                placeholder="Dis-moi où tu veux qu'on se retrouve..."
+                [class.error]="otherLocationInput === '' && otherLocationTouched" (blur)="otherLocationTouched = true"
+                required>
+              <div class="error-message" *ngIf="otherLocationInput === '' && otherLocationTouched">
+                <span>Dis-moi où tu veux qu'on se retrouve ma belle</span>
+              </div>
+            </div>
+
+            <div class="error-message special-error" *ngIf="showHeartError">
+              <span>Error 404 : tu y es déjà :3</span>
+            </div>
+
+            <div class="error-message" *ngIf="!selectedLocation && locationTouched">
+              <span>Choisis où tu veux qu'on se retrouve ma belle</span>
+            </div>
+          </div>
+
+          <button (click)="nextFromLocation()" type="button" class="btn-next" [disabled]="!isLocationValid()">
+            Suivant
+          </button>
+        </div>
+        <div id="ty" *ngIf="step1Validated && step2Validated && step3Validated && step4Validated">
+            <p> Merci !!! Ta reponse à bien été enregistrer</p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<router-outlet></router-outlet>

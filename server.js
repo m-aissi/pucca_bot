@@ -122,6 +122,372 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+// NOUVEAUX ENDPOINTS POUR LE PLANNER - ajoutés à votre code existant
+
+// GET /api/dateFrom - Récupère toutes les dates existantes pour afficher les indicateurs
+app.get('/api/dateFrom', async (req, res) => {
+  try {
+    const existingDates = await mongoose.connection.db.collection('dateFrom').find({}).toArray();
+    console.log(`📅 Récupération de ${existingDates.length} planifications existantes`);
+    res.json(existingDates);
+  } catch (error) {
+    console.error('❌ Erreur lors de la récupération des dates:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// POST /api/dateFrom - Soumission finale du formulaire
+app.post('/api/dateFrom', async (req, res) => {
+  try {
+    const planData = {
+      ...req.body,
+      createdAt: new Date()
+    };
+    
+    console.log('📝 Nouvelle planification reçue:', JSON.stringify(planData, null, 2));
+    
+    const result = await mongoose.connection.db.collection('dateFrom').insertOne(planData);
+    console.log('✅ Planification sauvegardée avec ID:', result.insertedId);
+    
+    res.status(201).json({ 
+      message: 'Planification créée avec succès!', 
+      id: result.insertedId 
+    });
+  } catch (error) {
+    console.error('💥 Erreur lors de la création de la planification:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// POST /api/track/open/:id - Track l'ouverture d'un lien
+app.post('/api/track/open/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const trackData = {
+      linkId: id,
+      openedAt: new Date(),
+      ip: req.headers['x-forwarded-for'] || 
+          req.headers['x-real-ip'] || 
+          req.connection.remoteAddress || 
+          req.socket.remoteAddress || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown'
+    };
+    
+    console.log(`🔗 Tracking ouverture du lien ID: ${id}`);
+    
+    await mongoose.connection.db.collection('linkTracking').insertOne(trackData);
+    
+    res.status(200).json({ message: 'Ouverture trackée' });
+  } catch (error) {
+    console.error('❌ Erreur tracking:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// POST /api/puccaLog - Log pour le choix "Dans ton coeur"
+app.post('/api/puccaLog', async (req, res) => {
+  try {
+    const logData = {
+      ...req.body,
+      timestamp: new Date(),
+      type: 'dans-ton-coeur'
+    };
+    
+    console.log('💖 Log spécial "Dans ton coeur":', logData.message);
+    
+    await mongoose.connection.db.collection('puccaLogs').insertOne(logData);
+    
+    res.status(201).json({ message: 'Log enregistré' });
+  } catch (error) {
+    console.error('❌ Erreur log:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// POST /api/firstConnection - Log de première connexion avec IP et modèle d'iPhone
+app.post('/api/firstConnection', async (req, res) => {
+  try {
+    const ip = req.headers['x-forwarded-for'] || 
+               req.headers['x-real-ip'] || 
+               req.connection.remoteAddress || 
+               req.socket.remoteAddress || 'unknown';
+    
+    const userAgent = req.headers['user-agent'] || '';
+    let deviceModel = 'Unknown';
+    
+    // Détection du modèle d'iPhone
+    if (/iPhone/i.test(userAgent)) {
+      if (/iPhone\s*OS\s*(\d+)/i.test(userAgent)) {
+        const version = userAgent.match(/iPhone\s*OS\s*(\d+)/i)[1];
+        deviceModel = `iPhone iOS ${version}`;
+      } else {
+        deviceModel = 'iPhone';
+      }
+    } else if (/iPad/i.test(userAgent)) {
+      deviceModel = 'iPad';
+    } else if (/iPod/i.test(userAgent)) {
+      deviceModel = 'iPod';
+    } else if (/Macintosh/i.test(userAgent)) {
+      deviceModel = 'Mac';
+    } else if (/Android/i.test(userAgent)) {
+      deviceModel = 'Android';
+    } else if (/Windows/i.test(userAgent)) {
+      deviceModel = 'Windows PC';
+    } else if (/Linux/i.test(userAgent)) {
+      deviceModel = 'Linux';
+    }
+    
+    const firstConnectionData = {
+      ip,
+      deviceModel,
+      userAgent,
+      firstConnectionAt: new Date(req.body.firstConnectionTime || new Date()),
+      clientFirstConnectionTime: req.body.firstConnectionTime,
+      type: 'first-connection'
+    };
+    
+    console.log('📱 Première connexion détectée:', JSON.stringify(firstConnectionData, null, 2));
+    
+    await mongoose.connection.db.collection('firstConnections').insertOne(firstConnectionData);
+    
+    res.status(201).json({ message: 'Première connexion enregistrée' });
+  } catch (error) {
+    console.error('❌ Erreur première connexion:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// POST /api/visitorDetection - Log de détection des visiteurs
+app.post('/api/visitorDetection', async (req, res) => {
+  try {
+    const { visitorFrom, detectedAt } = req.body;
+    
+    const detectionData = {
+      visitorFrom,
+      detectedAt: new Date(detectedAt),
+      ip: req.headers['x-forwarded-for'] || 
+          req.headers['x-real-ip'] || 
+          req.connection.remoteAddress || 
+          req.socket.remoteAddress || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown',
+      type: 'visitor-detection'
+    };
+    
+    console.log(`👋 Détection visiteur ${visitorFrom}:`, JSON.stringify(detectionData, null, 2));
+    
+    await mongoose.connection.db.collection('visitorDetections').insertOne(detectionData);
+    
+    res.status(201).json({ message: 'Détection visiteur enregistrée' });
+  } catch (error) {
+    console.error('❌ Erreur détection visiteur:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// POST /api/customLinks - Créer un lien custom pour une personne
+app.post('/api/customLinks', async (req, res) => {
+  try {
+    const { personName, customMessage, linkType } = req.body;
+    
+    const linkId = uuidv4();
+    const customLink = `http://176.186.145.154:3000/custom/${linkId}`;
+    
+    const linkData = {
+      linkId,
+      personName,
+      customMessage,
+      linkType,
+      customLink,
+      createdAt: new Date(),
+      isActive: true
+    };
+    
+    console.log('🔗 Nouveau lien custom créé:', JSON.stringify(linkData, null, 2));
+    
+    await mongoose.connection.db.collection('customLinks').insertOne(linkData);
+    
+    res.status(201).json({ 
+      message: 'Lien custom créé avec succès!',
+      linkId,
+      customLink
+    });
+  } catch (error) {
+    console.error('❌ Erreur création lien custom:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// GET /api/customLinks/all - Récupérer tous les liens custom
+app.get('/api/customLinks/all', async (req, res) => {
+  try {
+    const allLinks = await mongoose.connection.db.collection('customLinks').find({}).toArray();
+    console.log(`🔗 Récupération de ${allLinks.length} liens custom`);
+    res.json(allLinks);
+  } catch (error) {
+    console.error('❌ Erreur récupération liens custom:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// GET /custom/:linkId - Page de redirection custom avec tracking
+app.get('/custom/:linkId', async (req, res) => {
+  try {
+    const { linkId } = req.params;
+    
+    // Récupérer les informations du lien
+    const linkInfo = await mongoose.connection.db.collection('customLinks').findOne({ linkId });
+    
+    if (!linkInfo) {
+      return res.status(404).send('Lien non trouvé');
+    }
+    
+    // Logger l'ouverture du lien
+    const openData = {
+      linkId,
+      personName: linkInfo.personName,
+      openedAt: new Date(),
+      ip: req.headers['x-forwarded-for'] || 
+          req.headers['x-real-ip'] || 
+          req.connection.remoteAddress || 
+          req.socket.remoteAddress || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown'
+    };
+    
+    console.log(`👀 Lien custom ouvert par ${linkInfo.personName}:`, JSON.stringify(openData, null, 2));
+    
+    await mongoose.connection.db.collection('customLinkOpens').insertOne(openData);
+    
+    // Rediriger vers la page principale avec un paramètre pour identifier la personne
+    const redirectUrl = `http://176.186.145.154:4200/?from=${encodeURIComponent(linkInfo.personName)}`;
+    res.redirect(redirectUrl);
+    
+  } catch (error) {
+    console.error('❌ Erreur ouverture lien custom:', error);
+    res.status(500).send('Erreur lors de l\'ouverture du lien');
+  }
+});
+
+// Liens discrets pour Nel, Nat et Nad
+app.get('/moncoeur', async (req, res) => {
+  try {
+    const openData = {
+      personName: 'Nel',
+      openedAt: new Date(),
+      ip: req.headers['x-forwarded-for'] || 
+          req.headers['x-real-ip'] || 
+          req.connection.remoteAddress || 
+          req.socket.remoteAddress || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown',
+      linkType: 'nel-discrete'
+    };
+    
+    console.log('👀 Lien discret Nel ouvert:', JSON.stringify(openData, null, 2));
+    
+    await mongoose.connection.db.collection('customLinkOpens').insertOne(openData);
+    
+    // Rediriger vers la page principale (sans paramètre)
+    res.redirect('http://176.186.145.154:4421/');
+    
+  } catch (error) {
+    console.error('❌ Erreur ouverture lien discret Nel:', error);
+    res.status(500).send('Erreur lors de l\'ouverture du lien');
+  }
+});
+
+app.get('/monamour', async (req, res) => {
+  try {
+    const openData = {
+      personName: 'Nat',
+      openedAt: new Date(),
+      ip: req.headers['x-forwarded-for'] || 
+          req.headers['x-real-ip'] || 
+          req.connection.remoteAddress || 
+          req.socket.remoteAddress || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown',
+      linkType: 'nat-discrete'
+    };
+    
+    console.log('👀 Lien discret Nat ouvert:', JSON.stringify(openData, null, 2));
+    
+    await mongoose.connection.db.collection('customLinkOpens').insertOne(openData);
+    
+    // Rediriger vers la page principale (sans paramètre)
+    res.redirect('http://176.186.145.154:4421/');
+    
+  } catch (error) {
+    console.error('❌ Erreur ouverture lien discret Nat:', error);
+    res.status(500).send('Erreur lors de l\'ouverture du lien');
+  }
+});
+
+app.get('/monchou', async (req, res) => {
+  try {
+    const openData = {
+      personName: 'Nad',
+      openedAt: new Date(),
+      ip: req.headers['x-forwarded-for'] || 
+          req.headers['x-real-ip'] || 
+          req.connection.remoteAddress || 
+          req.socket.remoteAddress || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown',
+      linkType: 'nad-discrete'
+    };
+    
+    console.log('👀 Lien discret Nad ouvert:', JSON.stringify(openData, null, 2));
+    
+    await mongoose.connection.db.collection('customLinkOpens').insertOne(openData);
+    
+    // Rediriger vers la page principale (sans paramètre)
+    res.redirect('http://176.186.145.154:4421/');
+    
+  } catch (error) {
+    console.error('❌ Erreur ouverture lien discret Nad:', error);
+    res.status(500).send('Erreur lors de l\'ouverture du lien');
+  }
+});
+
+// GET /api/customLinkOpens/all - Récupérer toutes les ouvertures de liens custom
+app.get('/api/customLinkOpens/all', async (req, res) => {
+  try {
+    const allOpens = await mongoose.connection.db.collection('customLinkOpens').find({}).toArray();
+    console.log(`👀 Récupération de ${allOpens.length} ouvertures de liens custom`);
+    res.json(allOpens);
+  } catch (error) {
+    console.error('❌ Erreur récupération ouvertures:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// POST /api/responses - Enregistrer toutes les réponses du formulaire
+app.post('/api/responses', async (req, res) => {
+  try {
+    const responseData = {
+      ...req.body,
+      createdAt: new Date(),
+      ip: req.headers['x-forwarded-for'] || 
+          req.headers['x-real-ip'] || 
+          req.connection.remoteAddress || 
+          req.socket.remoteAddress || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown'
+    };
+    
+    console.log('📝 Nouvelles réponses reçues:', JSON.stringify(responseData, null, 2));
+    
+    const result = await mongoose.connection.db.collection('responses').insertOne(responseData);
+    console.log('✅ Réponses sauvegardées avec ID:', result.insertedId);
+    
+    res.status(201).json({ 
+      message: 'Réponses enregistrées avec succès!', 
+      id: result.insertedId 
+    });
+  } catch (error) {
+    console.error('💥 Erreur lors de l\'enregistrement des réponses:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ANCIENS ENDPOINTS (conservés)
+
 // Connexion à MongoDB
 mongoose.connect('mongodb://localhost:27017/puccabot');
 
@@ -169,9 +535,98 @@ app.get('/api/puccaInputs/heure/:heure', async (req, res) => {
   }
 });
 
-// Démarre le serveur sur le port 3000
-app.listen(3000, '0.0.0.0', () => {
-  console.log('Server running on port 3000 (accessible from all interfaces)');
+// Ajout dans server.js - Endpoint pour récupérer TOUTES les voicelines
+app.get('/api/puccaInputs/all', async (req, res) => {
+  try {
+    const allInputs = await mongoose.connection.db.collection('puccaInputs').find({}).toArray();
+    console.log(`Récupération de ${allInputs.length} PuccaInputs`);
+    res.json(allInputs);
+  } catch (error) {
+    console.error('Erreur lors de la récupération:', error);
+    res.status(500).json({ message: error.message });
+  }
 });
 
-//update/insert element in dailyfood collectio
+// Endpoint pour récupérer les messages des devs
+app.get('/api/msgToDev/all', async (req, res) => {
+  try {
+    const allMessages = await mongoose.connection.db.collection('msgToDevs').find({}).toArray();
+    console.log(`Récupération de ${allMessages.length} messages`);
+    res.json(allMessages);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des messages:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Endpoint pour récupérer les logs de connexion
+app.get('/api/connections/all', async (req, res) => {
+  try {
+    const allConnections = await mongoose.connection.db.collection('connections').find({}).toArray();
+    console.log(`Récupération de ${allConnections.length} connexions`);
+    res.json(allConnections);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des connexions:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Endpoint pour récupérer toutes les réponses
+app.get('/api/responses/all', async (req, res) => {
+  try {
+    const allResponses = await mongoose.connection.db.collection('responses').find({}).toArray();
+    console.log(`Récupération de ${allResponses.length} réponses`);
+    res.json(allResponses);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des réponses:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Endpoint pour récupérer les premières connexions
+app.get('/api/firstConnections/all', async (req, res) => {
+  try {
+    const allFirstConnections = await mongoose.connection.db.collection('firstConnections').find({}).toArray();
+    console.log(`📱 Récupération de ${allFirstConnections.length} premières connexions`);
+    res.json(allFirstConnections);
+  } catch (error) {
+    console.error('❌ Erreur récupération premières connexions:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Endpoint pour récupérer les détections de visiteurs
+app.get('/api/visitorDetections/all', async (req, res) => {
+  try {
+    const allDetections = await mongoose.connection.db.collection('visitorDetections').find({}).toArray();
+    console.log(`👋 Récupération de ${allDetections.length} détections de visiteurs`);
+    res.json(allDetections);
+  } catch (error) {
+    console.error('❌ Erreur récupération détections:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Démarre le serveur sur le port 3000
+app.listen(3000, '0.0.0.0', () => {
+  console.log('🚀 Server running on port 3000 (accessible from all interfaces)');
+  console.log('📋 Nouveaux endpoints disponibles:');
+  console.log('   GET  /api/dateFrom - Récupère les dates existantes');
+  console.log('   POST /api/dateFrom - Soumission du formulaire');
+  console.log('   POST /api/track/open/:id - Track ouverture lien');
+  console.log('   POST /api/puccaLog - Log choix spéciaux');
+  console.log('   POST /api/responses - Enregistrer toutes les réponses');
+  console.log('   GET  /api/responses/all - Récupérer toutes les réponses');
+  console.log('   POST /api/firstConnection - Log première connexion');
+  console.log('   GET  /api/firstConnections/all - Récupérer premières connexions');
+  console.log('   POST /api/visitorDetection - Log détection visiteur');
+  console.log('   GET  /api/visitorDetections/all - Récupérer détections visiteurs');
+  console.log('   POST /api/customLinks - Créer lien custom');
+  console.log('   GET  /api/customLinks/all - Récupérer liens custom');
+  console.log('   GET  /custom/:linkId - Redirection avec tracking');
+  console.log('   GET  /api/customLinkOpens/all - Récupérer ouvertures liens');
+  console.log('🔗 Liens simplifiés créés:');
+  console.log('   GET  /special - Lien discret pour Nel');
+  console.log('   GET  /exclusive - Lien discret pour Nat');
+  console.log('   GET  /premium - Lien discret pour Nad');
+});
