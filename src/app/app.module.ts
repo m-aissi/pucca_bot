@@ -7,11 +7,15 @@ import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { PatchNoteModalComponent } from './patch-note-modal/patch-note-modal.component';
+import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
+import { HomeComponent } from './home/home.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     PatchNoteModalComponent,
+    AdminDashboardComponent,
+    HomeComponent,
   ],
   imports: [
     BrowserModule,

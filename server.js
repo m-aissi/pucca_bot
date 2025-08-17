@@ -122,6 +122,90 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+// NOUVEAUX ENDPOINTS POUR LE PLANNER - ajoutés à votre code existant
+
+// GET /api/dateFrom - Récupère toutes les dates existantes pour afficher les indicateurs
+app.get('/api/dateFrom', async (req, res) => {
+  try {
+    const existingDates = await mongoose.connection.db.collection('dateFrom').find({}).toArray();
+    console.log(`📅 Récupération de ${existingDates.length} planifications existantes`);
+    res.json(existingDates);
+  } catch (error) {
+    console.error('❌ Erreur lors de la récupération des dates:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// POST /api/dateFrom - Soumission finale du formulaire
+app.post('/api/dateFrom', async (req, res) => {
+  try {
+    const planData = {
+      ...req.body,
+      createdAt: new Date()
+    };
+    
+    console.log('📝 Nouvelle planification reçue:', JSON.stringify(planData, null, 2));
+    
+    const result = await mongoose.connection.db.collection('dateFrom').insertOne(planData);
+    console.log('✅ Planification sauvegardée avec ID:', result.insertedId);
+    
+    res.status(201).json({ 
+      message: 'Planification créée avec succès!', 
+      id: result.insertedId 
+    });
+  } catch (error) {
+    console.error('💥 Erreur lors de la création de la planification:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// POST /api/track/open/:id - Track l'ouverture d'un lien
+app.post('/api/track/open/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const trackData = {
+      linkId: id,
+      openedAt: new Date(),
+      ip: req.headers['x-forwarded-for'] || 
+          req.headers['x-real-ip'] || 
+          req.connection.remoteAddress || 
+          req.socket.remoteAddress || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown'
+    };
+    
+    console.log(`🔗 Tracking ouverture du lien ID: ${id}`);
+    
+    await mongoose.connection.db.collection('linkTracking').insertOne(trackData);
+    
+    res.status(200).json({ message: 'Ouverture trackée' });
+  } catch (error) {
+    console.error('❌ Erreur tracking:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// POST /api/puccaLog - Log pour le choix "Dans ton coeur"
+app.post('/api/puccaLog', async (req, res) => {
+  try {
+    const logData = {
+      ...req.body,
+      timestamp: new Date(),
+      type: 'dans-ton-coeur'
+    };
+    
+    console.log('💖 Log spécial "Dans ton coeur":', logData.message);
+    
+    await mongoose.connection.db.collection('puccaLogs').insertOne(logData);
+    
+    res.status(201).json({ message: 'Log enregistré' });
+  } catch (error) {
+    console.error('❌ Erreur log:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// ANCIENS ENDPOINTS (conservés)
+
 // Connexion à MongoDB
 mongoose.connect('mongodb://localhost:27017/puccabot');
 
@@ -169,9 +253,48 @@ app.get('/api/puccaInputs/heure/:heure', async (req, res) => {
   }
 });
 
-// Démarre le serveur sur le port 3000
-app.listen(3000, '0.0.0.0', () => {
-  console.log('Server running on port 3000 (accessible from all interfaces)');
+// Ajout dans server.js - Endpoint pour récupérer TOUTES les voicelines
+app.get('/api/puccaInputs/all', async (req, res) => {
+  try {
+    const allInputs = await mongoose.connection.db.collection('puccaInputs').find({}).toArray();
+    console.log(`Récupération de ${allInputs.length} PuccaInputs`);
+    res.json(allInputs);
+  } catch (error) {
+    console.error('Erreur lors de la récupération:', error);
+    res.status(500).json({ message: error.message });
+  }
 });
 
-//update/insert element in dailyfood collectio
+// Endpoint pour récupérer les messages des devs
+app.get('/api/msgToDev/all', async (req, res) => {
+  try {
+    const allMessages = await mongoose.connection.db.collection('msgToDevs').find({}).toArray();
+    console.log(`Récupération de ${allMessages.length} messages`);
+    res.json(allMessages);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des messages:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Endpoint pour récupérer les logs de connexion
+app.get('/api/connections/all', async (req, res) => {
+  try {
+    const allConnections = await mongoose.connection.db.collection('connections').find({}).toArray();
+    console.log(`Récupération de ${allConnections.length} connexions`);
+    res.json(allConnections);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des connexions:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Démarre le serveur sur le port 3000
+app.listen(3000, '0.0.0.0', () => {
+  console.log('🚀 Server running on port 3000 (accessible from all interfaces)');
+  console.log('📋 Nouveaux endpoints disponibles:');
+  console.log('   GET  /api/dateFrom - Récupère les dates existantes');
+  console.log('   POST /api/dateFrom - Soumission du formulaire');
+  console.log('   POST /api/track/open/:id - Track ouverture lien');
+  console.log('   POST /api/puccaLog - Log choix spéciaux');
+});
