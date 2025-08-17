@@ -367,8 +367,7 @@ app.get('/custom/:linkId', async (req, res) => {
   }
 });
 
-// Liens discrets pour Nel, Nat et Nad
-app.get('/moncoeur', async (req, res) => {
+app.get('/spookyPookie', async (req, res) => {
   try {
     const openData = {
       personName: 'Nel',
@@ -394,57 +393,8 @@ app.get('/moncoeur', async (req, res) => {
   }
 });
 
-app.get('/monamour', async (req, res) => {
-  try {
-    const openData = {
-      personName: 'Nat',
-      openedAt: new Date(),
-      ip: req.headers['x-forwarded-for'] || 
-          req.headers['x-real-ip'] || 
-          req.connection.remoteAddress || 
-          req.socket.remoteAddress || 'unknown',
-      userAgent: req.headers['user-agent'] || 'unknown',
-      linkType: 'nat-discrete'
-    };
-    
-    console.log('👀 Lien discret Nat ouvert:', JSON.stringify(openData, null, 2));
-    
-    await mongoose.connection.db.collection('customLinkOpens').insertOne(openData);
-    
-    // Rediriger vers la page principale (sans paramètre)
-    res.redirect('http://176.186.145.154:4421/');
-    
-  } catch (error) {
-    console.error('❌ Erreur ouverture lien discret Nat:', error);
-    res.status(500).send('Erreur lors de l\'ouverture du lien');
-  }
-});
 
-app.get('/monchou', async (req, res) => {
-  try {
-    const openData = {
-      personName: 'Nad',
-      openedAt: new Date(),
-      ip: req.headers['x-forwarded-for'] || 
-          req.headers['x-real-ip'] || 
-          req.connection.remoteAddress || 
-          req.socket.remoteAddress || 'unknown',
-      userAgent: req.headers['user-agent'] || 'unknown',
-      linkType: 'nad-discrete'
-    };
-    
-    console.log('👀 Lien discret Nad ouvert:', JSON.stringify(openData, null, 2));
-    
-    await mongoose.connection.db.collection('customLinkOpens').insertOne(openData);
-    
-    // Rediriger vers la page principale (sans paramètre)
-    res.redirect('http://176.186.145.154:4421/');
-    
-  } catch (error) {
-    console.error('❌ Erreur ouverture lien discret Nad:', error);
-    res.status(500).send('Erreur lors de l\'ouverture du lien');
-  }
-});
+
 
 // GET /api/customLinkOpens/all - Récupérer toutes les ouvertures de liens custom
 app.get('/api/customLinkOpens/all', async (req, res) => {
