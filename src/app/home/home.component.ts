@@ -131,13 +131,17 @@ export class HomeComponent {
     this.currentTyping = new TypeIt("#element",{
       speed: 45,
       breakLines:false,
-      strings:[
+      strings: [
+        "A single light can go a long way.",
+        "From a single light, countless stars can be born.",
+        "Brightening up my existence.",
+        "Placing stars above my head so I can dream of better tomorrows.",
+        "You bring me hope, snatching me from despair.",
         "Life with you is less gloomy.",
-        "A single light can goes a long way.",
         "Thank you for being by my side.",
         "Thank you for being you.",
         "I love you <3"
-      ],
+      ],      
     })
     .go();
     // Attendre un peu puis redémarrer l'animation
