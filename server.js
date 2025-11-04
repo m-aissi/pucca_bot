@@ -289,6 +289,30 @@ app.get('/api/connections/all', async (req, res) => {
   }
 });
 
+// end point pour modifier une input
+app.put('/api/puccaInputs/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const updatedInput = req.body;
+    await mongoose.connection.db.collection('puccaInputs').updateOne({ id: id, }, { $set: updatedInput });
+    res.json({ message: 'Input mise à jour avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+//end point pour ajouter une nouvelle input
+app.post('/api/puccaInputs/new', async (req, res) => {
+  try {
+    const newInput = req.body;
+    newInput.id = uuidv4(); // Génère un ID unique
+    await mongoose.connection.db.collection('puccaInputs').insertOne(newInput);
+    res.status(201).json(newInput);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // Démarre le serveur sur le port 3000
 app.listen(3000, '0.0.0.0', () => {
   console.log('🚀 Server running on port 3000 (accessible from all interfaces)');
