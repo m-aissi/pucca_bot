@@ -67,13 +67,13 @@ export class AdminDashboardComponent implements OnInit {
       input.heures = input.heures.split(',').map((h: string) => parseInt(h.trim(), 10));      
     }
     console.log('Mise à jour de l\'input', input);
-    // this.http.put(`http://176.186.145.154:3000/api/puccaInputs/${input.id}`, input)
-    //   .subscribe({
-    //     next: () => {
-    //       console.log('Input mise à jour avec succès');
-    //     },
-    //     error: (err) => console.error('Erreur lors de la mise à jour', err)
-    //   });
+    this.http.put(`http://176.186.145.154:3000/api/puccaInputs/${input.id}`, input)
+      .subscribe({
+        next: () => {
+          console.log('Input mise à jour avec succès');
+        },
+        error: (err) => console.error('Erreur lors de la mise à jour', err)
+      });
 }
 
   createPucca() {
