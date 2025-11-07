@@ -87,7 +87,7 @@ export class PatchNoteModalComponent implements OnInit, AfterViewInit {
       payload.contactInfo = this.contactInfoInput;
     }
   
-    this.http.post('http://176.186.145.154:3000/api/msgToDev', payload)
+    this.http.post('/api/msgToDev', payload)
       .subscribe({
         next: (res) => {
           this.confirmationMessage = 'Message envoyé avec succès !';
