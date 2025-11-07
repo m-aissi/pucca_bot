@@ -289,14 +289,29 @@ app.get('/api/connections/all', async (req, res) => {
   }
 });
 
-// end point pour modifier une input
+// Endpoint pour modifier une input
 app.put('/api/puccaInputs/:id', async (req, res) => {
   try {
     const id = req.params.id;
     const updatedInput = req.body;
-    await mongoose.connection.db.collection('puccaInputs').updateOne({ id: id, }, { $set: updatedInput });
+    
+    // Convertir l'id en ObjectId MongoDB
+    const { ObjectId } = require('mongodb');
+    
+    const result = await mongoose.connection.db.collection('puccaInputs').updateOne(
+      { _id: new ObjectId(id) },  // ⚠️ Utiliser _id avec ObjectId
+      { $set: updatedInput }
+    );
+    
+    console.log('✅ Résultat update:', result.matchedCount, 'trouvé(s),', result.modifiedCount, 'modifié(s)');
+    
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: 'Input non trouvée' });
+    }
+    
     res.json({ message: 'Input mise à jour avec succès' });
   } catch (error) {
+    console.error('❌ Erreur update:', error);
     res.status(500).json({ message: error.message });
   }
 });
@@ -305,9 +320,23 @@ app.put('/api/puccaInputs/:id', async (req, res) => {
 app.post('/api/puccaInputs/new', async (req, res) => {
   try {
     const newInput = req.body;
-    newInput.id = uuidv4(); // Génère un ID unique
+    newInput._id = uuidv4(); // Génère un ID unique
     await mongoose.connection.db.collection('puccaInputs').insertOne(newInput);
     res.status(201).json(newInput);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+//end point pour supprimer une input
+app.delete('/api/puccaInputs/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const result = await mongoose.connection.db.collection('puccaInputs').deleteOne({ _id: id });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: 'Input non trouvée' });
+    }
+    res.json({ message: 'Input supprimée avec succès' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
