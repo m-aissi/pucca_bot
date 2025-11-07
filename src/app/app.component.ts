@@ -25,8 +25,7 @@ export class AppComponent {
   firstHourRegistered : any;
 
   ngOnInit() {
-    this.logConnexion();
-    this.initClock();
+
   }
 
   getPuccaInputsByHeure(heure: number) {
