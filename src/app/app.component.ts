@@ -30,7 +30,7 @@ export class AppComponent {
   }
 
   getPuccaInputsByHeure(heure: number) {
-    this.http.get<any[]>(`https://176.186.145.154:3000/api/puccaInputs/heure/${heure}`)
+    this.http.get<any[]>(`http://176.186.145.154:3000/api/puccaInputs/heure/${heure}`)
       .subscribe({
         next: (inputs) => {
           console.log(`PuccaInputs pour l'heure ${heure}:`, inputs)
@@ -108,7 +108,7 @@ export class AppComponent {
     else if (/windows/i.test(userAgent)) device = 'Windows PC';
     else if (/macintosh|mac os x/i.test(userAgent)) device = 'Mac';
     else if (/linux/i.test(userAgent)) device = 'Linux';
-    this.http.post('https://176.186.145.154:3000/api/login', {
+    this.http.post('http://176.186.145.154:3000/api/login', {
       userAgent,
       device
     }).subscribe({
