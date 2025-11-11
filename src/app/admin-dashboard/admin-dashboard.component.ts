@@ -17,7 +17,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   getAllPuccaInputs() {
-    this.http.get<any[]>(`http://176.186.145.154:3000/api/puccaInputs/all`)
+    this.http.get<any[]>(`/api/puccaInputs/all`)
       .subscribe({
         next: (res) => {          
           this.puccaInputs = res;
@@ -65,7 +65,7 @@ export class AdminDashboardComponent implements OnInit {
       heures: input.heures
     };
     
-    this.http.put(`http://176.186.145.154:3000/api/puccaInputs/${input._id}`, cleanInput)
+    this.http.put(`/api/puccaInputs/${input._id}`, cleanInput)
       .subscribe({
         next: (res) => {
           console.log('✅ Input mise à jour avec succès', res);
@@ -80,11 +80,12 @@ export class AdminDashboardComponent implements OnInit {
 
     console.log('Nouveau pucca créé', this.newPucca);
     // on transforme les heures en tableau si besoin il y a une virgule, sinon on cree un tableau avec un seul élément
+    //on converti aussi les string en number avec des virgules quoi qui peuvent contenir un . une float/double quoi
     if (typeof this.newPucca.heures === 'string' && this.newPucca.heures.includes(',')) {
-      this.newPucca.heures = this.newPucca.heures.toString().split(',').map(h => parseInt(h.trim(), 10));
+      this.newPucca.heures = this.newPucca.heures.toString().split(',').map(h => parseFloat(h.trim()));
     } else if (typeof this.newPucca.heures === 'string') {
       // single value string -> convert to number array
-      const n = parseInt(this.newPucca.heures.trim(), 10);
+      const n = parseFloat(this.newPucca.heures.trim());
       this.newPucca.heures = isNaN(n) ? [] : [n];
     }
 
@@ -99,7 +100,7 @@ export class AdminDashboardComponent implements OnInit {
     //   res.status(500).json({ message: error.message });
     // }
     // });
-    this.http.post(`http://176.186.145.154:3000/api/puccaInputs/new`, this.newPucca)
+    this.http.post(`/api/puccaInputs/new`, this.newPucca)
       .subscribe({
         next: (res) => {
           console.log('✅ Nouveau pucca créé avec succès', res);
@@ -120,7 +121,7 @@ export class AdminDashboardComponent implements OnInit {
 
   deleteInput(input: any) {
       console.log('Suppression de l\'input', input);
-      this.http.delete(`http://176.186.145.154:3000/api/puccaInputs/${input._id}`)
+      this.http.delete(`/api/puccaInputs/${input._id}`)
         .subscribe({
           next: (res) => {
             console.log('✅ Input supprimé avec succès', res);

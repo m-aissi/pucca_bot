@@ -245,7 +245,7 @@ app.get('/api/puccaInputs/heure/:heure', async (req, res) => {
   try {
     const heure = parseInt(req.params.heure, 10);
     const puccaInputs = await mongoose.connection.db.collection('puccaInputs').find({
-      heures: heure
+      heures: { $elemMatch: { $gte: heure, $lt: heure + 1 } }    
     }).toArray();
     res.json(puccaInputs);
   } catch (error) {
@@ -297,12 +297,16 @@ app.put('/api/puccaInputs/:id', async (req, res) => {
     
     // Convertir l'id en ObjectId MongoDB
     const { ObjectId } = require('mongodb');
-    
+   // si l'heures est une string on la converti en tableau de number
+    if (typeof updatedInput.heures === 'string') {
+      const heuresArray = updatedInput.heures.split(',').map(h => parseFloat(h.trim()));
+      updatedInput.heures = heuresArray;
+    }    
     const result = await mongoose.connection.db.collection('puccaInputs').updateOne(
       { _id: new ObjectId(id) },  // ⚠️ Utiliser _id avec ObjectId
       { $set: updatedInput }
     );
-    
+
     console.log('✅ Résultat update:', result.matchedCount, 'trouvé(s),', result.modifiedCount, 'modifié(s)');
     
     if (result.matchedCount === 0) {
@@ -320,6 +324,11 @@ app.put('/api/puccaInputs/:id', async (req, res) => {
 app.post('/api/puccaInputs/new', async (req, res) => {
   try {
     const newInput = req.body;
+    // si l'heures est une string on la converti en tableau de number
+    if (typeof newInput.heures === 'string') {
+      const heuresArray = newInput.heures.split(',').map(h => parseFloat(h.trim()));
+      newInput.heures = heuresArray;
+    }
     await mongoose.connection.db.collection('puccaInputs').insertOne(newInput);
     res.status(201).json(newInput);
   } catch (error) {

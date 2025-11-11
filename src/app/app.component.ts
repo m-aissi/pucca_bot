@@ -28,28 +28,49 @@ export class AppComponent {
 
   }
 
-  getPuccaInputsByHeure(heure: number) {
-    this.http.get<any[]>(`http://176.186.145.154:3000/api/puccaInputs/heure/${heure}`)
+  getPuccaInputsByHeure(heure: number, minute?: number) {
+    this.http.get<any[]>(`/api/puccaInputs/heure/${heure}`)
       .subscribe({
         next: (inputs) => {
           console.log(`PuccaInputs pour l'heure ${heure}:`, inputs)
-          const first = inputs[0];
 
-          this.puccaToDisplay = new PuccaInput(
-            first.sentences,
-            first.color,
-            first.backgroundColor,
-            first.heures,
-            first.fontColor
-          );
-
-          this.currentTyping = new TypeIt("#element",{
-            speed: 45,
-            breakLines:false,
-            strings:this.puccaToDisplay.sentences
-          })
-          .go();
-          
+          // si dans les inputs il existe un avec une heure ou il y a un . (un float/double) on verifie si la minute actuelle est comprise entre l'heure et l'heure +1
+          if (minute !== undefined) {
+            //l'input est comme ceci si c un float elle sera comme 8.30 pour 8h30
+            var floatInput = inputs.find(input =>
+              input.heures.some((h: number) => h % 1 !== 0 && minute >= Math.floor(h % 1 * 100) && minute < Math.floor((h % 1 * 100) + 1))
+            );
+            if (floatInput) {
+              this.puccaToDisplay = new PuccaInput(
+                floatInput.sentences,
+                floatInput.color,
+                floatInput.backgroundColor,
+                floatInput.heures,
+                floatInput.fontColor
+              );
+              this.currentTyping = new TypeIt("#element",{
+                speed: 45,
+                breakLines:false,
+                strings:this.puccaToDisplay.sentences
+              })
+              .go();
+            } else {
+              var first = inputs[0];
+              this.puccaToDisplay = new PuccaInput(
+                first.sentences,
+                first.color,
+                first.backgroundColor,
+                first.heures,
+                first.fontColor
+              );
+              this.currentTyping = new TypeIt("#element",{
+                speed: 45,
+                breakLines:false,
+                strings:this.puccaToDisplay.sentences
+              })
+              .go();
+            }
+          }
           console.log(this.puccaToDisplay)
           this.initParticleJs(this.puccaToDisplay.color);
           // Change la couleur de fond du main-container
@@ -85,14 +106,14 @@ export class AppComponent {
       const currentHour = this.currentTime.split(":",1)
       if (this.firstHourRegistered == undefined){
         this.firstHourRegistered = currentHour;
-        this.getPuccaInputsByHeure(Number(currentHour));
+        this.getPuccaInputsByHeure(Number(currentHour), Number(this.currentTime.split(":",2)[1]));
       }
 
       if (Number(this.firstHourRegistered) !== Number(currentHour)){
         console.log("changement d'heure")
         this.currentTyping.destroy();
         this.firstHourRegistered = currentHour;
-        this.getPuccaInputsByHeure(Number(currentHour));
+        this.getPuccaInputsByHeure(Number(currentHour), Number(this.currentTime.split(":",2)[1]) );
       }
   
     }, 1000);
@@ -107,7 +128,7 @@ export class AppComponent {
     else if (/windows/i.test(userAgent)) device = 'Windows PC';
     else if (/macintosh|mac os x/i.test(userAgent)) device = 'Mac';
     else if (/linux/i.test(userAgent)) device = 'Linux';
-    this.http.post('http://176.186.145.154:3000/api/login', {
+    this.http.post('/api/login', {
       userAgent,
       device
     }).subscribe({
