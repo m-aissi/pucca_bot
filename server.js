@@ -320,7 +320,6 @@ app.put('/api/puccaInputs/:id', async (req, res) => {
 app.post('/api/puccaInputs/new', async (req, res) => {
   try {
     const newInput = req.body;
-    newInput._id = uuidv4(); // Génère un ID unique
     await mongoose.connection.db.collection('puccaInputs').insertOne(newInput);
     res.status(201).json(newInput);
   } catch (error) {
@@ -331,8 +330,10 @@ app.post('/api/puccaInputs/new', async (req, res) => {
 //end point pour supprimer une input
 app.delete('/api/puccaInputs/:id', async (req, res) => {
   try {
+
     const id = req.params.id;
-    const result = await mongoose.connection.db.collection('puccaInputs').deleteOne({ _id: id });
+    const { ObjectId } = require('mongodb');
+    const result = await mongoose.connection.db.collection('puccaInputs').deleteOne({ _id: new ObjectId(id) });
     if (result.deletedCount === 0) {
       return res.status(404).json({ message: 'Input non trouvée' });
     }
