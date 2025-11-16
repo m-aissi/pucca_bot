@@ -1,0 +1,27 @@
+.segmented-dark {
+  display: inline-flex;
+  background: #1f1f1f00;
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid #33333300;
+  gap: 4px;
+}
+
+.segmented-dark input[type="radio"] {
+  display: none;
+}
+
+.segmented-dark label {
+  padding: 8px 20px;
+  color: #aaa;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.25s;
+  user-select: none;
+}
+
+.segmented-dark input[type="radio"]:checked + label {
+  background: #333;
+  color: white;
+}

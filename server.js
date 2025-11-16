@@ -1,20 +1,100 @@
 // Importation des packages nécessaires
-const express = require('express');        // Framework web pour créer le serveur
-const mongoose = require('mongoose');      // Pour communiquer avec MongoDB
-const cors = require('cors');             // Pour autoriser les requêtes depuis Angular
-const { v4: uuidv4 } = require('uuid');   // Pour générer des IDs uniques
-
+const express = require('express');     
+const mongoose = require('mongoose'); 
+const cors = require('cors');           
+const { v4: uuidv4 } = require('uuid'); 
+const bcrypt = require('bcrypt');
+const { use } = require('react');
+const saltRounds = 10;
 // Création de l'application Express
 const app = express();
 
 // Configuration des middlewares
-app.use(cors());                          // Active CORS pour toutes les routes
-app.use(express.json());                  // Permet de lire le JSON des requêtes
+app.use(cors());                       
+app.use(express.json());                  
 
-// Ajout d'un endpoint POST /api/login pour logger la connexion
+
+app.post('/api/register', async (req, res) => {
+  try {
+    const email = String(req.body.email) || null;
+    const username = String(req.body.username);
+    const password = String(req.body.password);
+    
+    var existingUser = await mongoose.connection.db.collection('users').findOne({username
+    });
+    if (existingUser) {
+      return  res.status(409).json({ message: 'L\'username existe déjà' });
+    }
+    var existingEmail = null;
+    if (email) {
+      existingEmail = await mongoose.connection.db.collection('users').findOne({email
+      });
+      if (existingEmail) {
+        return  res.status(409).json({ message: 'L\'email existe déjà' });
+      }
+    }
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const newUser = { username, email, password: hashedPassword, loginAttempts: 0, lockedUntil: null, lastFailedLogin: null };
+    await mongoose.connection.db.collection('users').insertOne(newUser);
+    res.status(201).json({ message: 'Utilisateur enregistré avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.post('/api/loggin', async (req, res) => {
+  try {
+    const username = String(req.body.username);
+    const password = String(req.body.password);
+
+    var user = await mongoose.connection.db.collection('users').findOne({username});
+    
+    if (!user) {
+      return res.status(401).json({ message: 'User/Password incorrect' });
+    }
+    
+    var dateNow = new Date();
+    if (user.lockedUntil && date < user.lockedUntil) {
+      return res.status(403).json({ message: 'Compte temporairement bloqué. Try again later.' });
+    }
+
+    if (user.lastFailedLogin) {
+      const timeSinceLastFail = dateNow - user.lastFailedLogin;
+      if (timeSinceLastFail > 15 * 60 * 1000) {
+        user.loginAttempts = 0;
+      }        
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (passwordMatch) {
+      delete user.password;
+      res.status(200).json({ message: 'Login successful', body: user });
+    } else {
+        let loginAttempts = user.loginAttempts || 0;
+        loginAttempts += 1;
+        let lastFailedLogin = dateNow;
+        let updateFields = { loginAttempts, lastFailedLogin };
+        if (loginAttempts >= 5) {
+          const lockDuration = Math.min(2 ** (loginAttempts - 5) * 60 * 1000, 60 * 60 * 1000);
+          updateFields.lockedUntil = new Date(dateNow.getTime() + lockDuration);
+        }
+        await mongoose.connection.db.collection('users').updateOne(
+          { username },
+          { $set: updateFields }
+        );
+        res.status(401).json({ message: 'User/Password incorrect' });
+    }
+
+
+  } catch (error) { 
+    res.status(500).json({ message: error.message });
+  }
+});
+
+
+
 app.post('/api/login', async (req, res) => {
   try {
-    // Récupération de l'IP avec plus de sources possibles
     const ip = req.headers['x-forwarded-for'] || 
                req.headers['x-real-ip'] || 
                req.connection.remoteAddress || 
@@ -124,7 +204,6 @@ app.post('/api/login', async (req, res) => {
 
 // NOUVEAUX ENDPOINTS POUR LE PLANNER - ajoutés à votre code existant
 
-// GET /api/dateFrom - Récupère toutes les dates existantes pour afficher les indicateurs
 app.get('/api/dateFrom', async (req, res) => {
   try {
     const existingDates = await mongoose.connection.db.collection('dateFrom').find({}).toArray();

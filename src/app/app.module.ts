@@ -9,6 +9,7 @@ import { AppComponent } from './app.component';
 import { PatchNoteModalComponent } from './patch-note-modal/patch-note-modal.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { HomeComponent } from './home/home.component';
+import { LoginModalComponent } from './login-modal/login-modal.component';
 
 @NgModule({
   declarations: [
@@ -16,6 +17,7 @@ import { HomeComponent } from './home/home.component';
     PatchNoteModalComponent,
     AdminDashboardComponent,
     HomeComponent,
+    LoginModalComponent,
   ],
   imports: [
     BrowserModule,

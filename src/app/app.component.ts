@@ -29,7 +29,7 @@ export class AppComponent {
   }
 
   getPuccaInputsByHeure(heure: number, minute?: number) {
-    this.http.get<any[]>(`/api/puccaInputs/heure/${heure}`)
+    this.http.get<any[]>(`http://176.186.145.154:3000/api/puccaInputs/heure/${heure}`)
       .subscribe({
         next: (inputs) => {
           console.log(`PuccaInputs pour l'heure ${heure}:`, inputs)
@@ -128,7 +128,7 @@ export class AppComponent {
     else if (/windows/i.test(userAgent)) device = 'Windows PC';
     else if (/macintosh|mac os x/i.test(userAgent)) device = 'Mac';
     else if (/linux/i.test(userAgent)) device = 'Linux';
-    this.http.post('/api/login', {
+    this.http.post('http://176.186.145.154:3000/api/login', {
       userAgent,
       device
     }).subscribe({
@@ -147,7 +147,7 @@ export class AppComponent {
 //   heures: [8, 12]
 // };
 
-// this.http.post('http://192.168.1.90:3000/api/puccaInputs', puccaInput)
+// this.http.post('http://192.168.1.90:3000http://176.186.145.154:3000/api/puccaInputs', puccaInput)
 //   .subscribe({
 //     next: (res) => console.log('Ajout réussi', res),
 //     error: (err) => console.error('Erreur lors de l\'ajout', err)

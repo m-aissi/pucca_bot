@@ -1,0 +1,48 @@
+<!-- Modal Bootstrap -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header d-flex justify-content-between">
+<div class="segmented-dark">
+  <input type="radio" name="auth" id="login" (click)="diplsayLoggin()" checked>
+  <label for="login">Login</label>
+
+  <input type="radio" name="auth" id="register" (click)="displayRegister()">
+  <label for="register">Register</label>
+</div>
+
+
+        <i class="bi bi-x-lg" data-bs-dismiss="modal" style="cursor: pointer; font-size: 1.2rem"></i>
+      </div>
+      <div class="modal-body">
+
+      <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="floatingInput" [(ngModel)]="userNameInput" 
+         placeholder="username" (ngModelChange)="validateForm()" >
+        <label for="floatingInput">Username</label>
+      </div>
+      <div class="form-floating mb-3">
+        <input type="password" class="form-control" id="floatingPassword" [(ngModel)]="passwordInput"
+         placeholder="password" (ngModelChange)="validateForm()" >
+        <label for="floatingPassword">Password</label>
+      </div>
+      <div class="form-floating mb-3" *ngIf="isRegistering">
+        <input type="password" class="form-control" id="floatingConfirmPassword" placeholder="password"   
+        [(ngModel)]="confirmPasswordInput" (ngModelChange)="validateRegister()">
+        <label for="floatingConfirmPassword">Confirm password</label>
+      </div>
+      <div class="form-floating" *ngIf="isRegistering"
+      >
+        <input type="email" class="form-control" id="email" placeholder="password">
+        <label for="email">Email (optional)</label>
+      </div>
+<small class="text-danger ms-2" *ngIf="errorMsg" >Username/Password incorrect.</small>
+      </div>
+    <div class="modal-footer">
+      <div class="justify-content-end d-flex gap-2">
+        <button class="btn btn-primary" *ngIf="!isRegistering" [disabled]="!isFormValid" (click)="login()"> Login </button>
+        <button class="btn btn-success" *ngIf="isRegistering" [disabled]="!isRegisterValid" (click)="register()"> Register </button>
+      </div>
+    </div>
+  </div>
+</div>

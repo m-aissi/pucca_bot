@@ -7,6 +7,7 @@ import { first } from 'rxjs';
 import { PuccaInput } from '../class/pucca-input.model';
 import { MatDialog } from '@angular/material/dialog';
 import { PatchNoteModalComponent } from '../patch-note-modal/patch-note-modal.component';
+import { LoginModalComponent } from '../login-modal/login-modal.component';
 
 @Component({
   selector: 'app-home',
@@ -18,6 +19,7 @@ export class HomeComponent {
   constructor(private http: HttpClient, private dialog: MatDialog) {}
 
   @ViewChild(PatchNoteModalComponent) patchNoteModal!: PatchNoteModalComponent;
+  @ViewChild(LoginModalComponent) loginModal!: LoginModalComponent;
 
   puccaToDisplay : any;
   currentTyping : any;
@@ -30,23 +32,29 @@ export class HomeComponent {
   }
 
   getPuccaInputsByHeure(heure: number, minute?: number) {
-    this.http.get<any[]>(`/api/puccaInputs/heure/${heure}`)
+    this.http.get<any[]>(`http://176.186.145.154:3000/api/puccaInputs/heure/${heure}`)
       .subscribe({
         next: (inputs) => {
           console.log(`PuccaInputs pour l'heure ${heure}:`, inputs)
 
-          // si dans les inputs il existe un avec une heure ou il y a un . (un float/double) on verifie si la minute actuelle est comprise entre l'heure et l'heure +1
           if (minute !== undefined) {
-            //l'input est comme ceci si c un float elle sera comme 8.30 pour 8h30
-            var floatInput = inputs.find(input =>
-              input.heures.some((h: number) => h % 1 !== 0 && minute >= Math.floor(h % 1 * 100) && minute < Math.floor((h % 1 * 100) + 1))
-            );
+             for (let input of inputs) {
+              for (let h of input.heures) {
+                if (h % 1 !== 0) {
+                  var stringH = h.toString();
+                  const decimalPart = parseInt(stringH.split(".")[1]);
+                  console.log("decimalPart :", decimalPart);
+
+                  if (minute === decimalPart) {
+                    console.log("float input trouvé dans la boucle :", input);
+                    var floatInput = input;
+                    break;
+                  }
+                }
+              }
+              }
+
             if (floatInput) {
-              // on change l'image de pucca si on a un floatInput via le dom
-              // this.document.getElementById('puccaImage')!.src = "img/pucca2.png";
-              // comment on fait pour changer l'image de pucca via le dom en angular ?
-              // on utilise ViewChild pour recuperer l'element
-              ViewChild('puccaImage').nativeElement.src = "img/pucca2.png";
               console.log("float input trouvé :", floatInput);
               this.puccaToDisplay = new PuccaInput(
                 floatInput.sentences,
@@ -80,14 +88,17 @@ export class HomeComponent {
           }
           console.log(this.puccaToDisplay)
           this.initParticleJs(this.puccaToDisplay.color);
-          // Change la couleur de fond du main-container
           const mainContainer = document.getElementById('main-container');
           if (mainContainer) {
             mainContainer.style.backgroundColor = this.puccaToDisplay.backgroundColor;
             mainContainer.style.color = this.puccaToDisplay.fontColor;
+            if(floatInput) {
+              const puccaImage = document.getElementById('puccaImage') as HTMLImageElement;
+              if (puccaImage) {
+                puccaImage.src = "img/pucca2.png";
+              }
+            }
           }
-
-          
         },
         error: (err) => console.error('Erreur lors du GET filtré', err)
       });
@@ -135,7 +146,7 @@ export class HomeComponent {
     else if (/windows/i.test(userAgent)) device = 'Windows PC';
     else if (/macintosh|mac os x/i.test(userAgent)) device = 'Mac';
     else if (/linux/i.test(userAgent)) device = 'Linux';
-    this.http.post('/api/login', {
+    this.http.post('http://176.186.145.154:3000/api/login', {
       userAgent,
       device
     }).subscribe({
@@ -148,22 +159,8 @@ export class HomeComponent {
     this.patchNoteModal.openModal();
   }
 
-// const puccaInput = {
-//   sentences: ["Coucou !", "Il est l'heure de coder.", "Bonne chance !"],
-//   color: "#ff69b4",
-//   heures: [8, 12]
-// };
-
-// this.http.post('http://192.168.1.90:3000/api/puccaInputs', puccaInput)
-//   .subscribe({
-//     next: (res) => console.log('Ajout réussi', res),
-//     error: (err) => console.error('Erreur lors de l\'ajout', err)
-// });
-// rainbowtext
-  // new TypeIt("#callback", {
-  //   strings: ["Look, it's rainbow text!"],
-  //   afterStep: function (instance) {
-  //     instance.getElement().style.color = getRandomColor();
-  //   },
-  // }).go();
+  openModalLog() {
+    
+    this.loginModal.openModal();
+  }
 }
