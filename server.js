@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');           
 const { v4: uuidv4 } = require('uuid'); 
 const bcrypt = require('bcrypt');
-const { use } = require('react');
 const saltRounds = 10;
 // Création de l'application Express
 const app = express();
@@ -54,8 +53,8 @@ app.post('/api/loggin', async (req, res) => {
     }
     
     var dateNow = new Date();
-    if (user.lockedUntil && date < user.lockedUntil) {
-      return res.status(403).json({ message: 'Compte temporairement bloqué. Try again later.' });
+    if (user.lockedUntil && dateNow < user.lockedUntil) {
+      return res.status(403).json({ message: 'Compte temporairement bloqué. Réessayer  plus tard.' });
     }
 
     if (user.lastFailedLogin) {
@@ -68,14 +67,19 @@ app.post('/api/loggin', async (req, res) => {
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (passwordMatch) {
       delete user.password;
+      await mongoose.connection.db.collection('users').updateOne(
+        { username
+        },
+        { $set: { loginAttempts: 0, lockedUntil: null, lastFailedLogin: null } }
+      );
       res.status(200).json({ message: 'Login successful', body: user });
     } else {
         let loginAttempts = user.loginAttempts || 0;
         loginAttempts += 1;
         let lastFailedLogin = dateNow;
         let updateFields = { loginAttempts, lastFailedLogin };
-        if (loginAttempts >= 5) {
-          const lockDuration = Math.min(2 ** (loginAttempts - 5) * 60 * 1000, 60 * 60 * 1000);
+        if (loginAttempts >= 10) {
+          const lockDuration = 10 * 60 * 1000;
           updateFields.lockedUntil = new Date(dateNow.getTime() + lockDuration);
         }
         await mongoose.connection.db.collection('users').updateOne(

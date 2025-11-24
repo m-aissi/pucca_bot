@@ -8,18 +8,22 @@ import { PuccaInput } from '../class/pucca-input.model';
 import { MatDialog } from '@angular/material/dialog';
 import { PatchNoteModalComponent } from '../patch-note-modal/patch-note-modal.component';
 import { LoginModalComponent } from '../login-modal/login-modal.component';
-
+import { ProfileModalComponent } from '../profile-modal/profile-modal.component';
+import { AuthService, User } from '../services/auth.service';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   standalone: false,
   styleUrl: './home.component.css'
 })
-export class HomeComponent {
-  constructor(private http: HttpClient, private dialog: MatDialog) {}
+export class HomeComponent implements AfterViewInit {
+  currentUser: User | null = null;
+
+  constructor(private http: HttpClient, private dialog: MatDialog, private auth: AuthService) {}
 
   @ViewChild(PatchNoteModalComponent) patchNoteModal!: PatchNoteModalComponent;
   @ViewChild(LoginModalComponent) loginModal!: LoginModalComponent;
+  @ViewChild(ProfileModalComponent) profileModal!: ProfileModalComponent;
 
   puccaToDisplay : any;
   currentTyping : any;
@@ -27,8 +31,36 @@ export class HomeComponent {
   firstHourRegistered : any;
 
   ngOnInit() {
+    // laisser les initialisations qui n'ont pas besoin des ViewChild
     this.logConnexion();
     this.initClock();
+  }
+
+  ngAfterViewInit() {
+    // ViewChild disponibles ici
+    this.auth.user$.subscribe(u => {
+      this.currentUser = u;
+      console.log('user connected', u);
+
+      if (u) {
+        // fermer la modal de login si elle est ouverte (sécurité)
+        try { this.loginModal?.closeModal(); } catch (e) {}
+
+        // ouvrir la modal profile si disponible
+        if (this.profileModal && typeof this.profileModal.openModal === 'function') {
+          try { this.profileModal.openModal(); } catch (e) { console.error(e); }
+        } else {
+          // fallback : ouvrir via bootstrap en ciblant l'ID du modal profile
+          const el = document.getElementById('profileModal');
+          if (el) {
+            try {
+              const modal = new (window as any).bootstrap.Modal(el);
+              modal.show();
+            } catch (e) { console.error(e); }
+          }
+        }
+      }
+    });
   }
 
   getPuccaInputsByHeure(heure: number, minute?: number) {
@@ -159,8 +191,12 @@ export class HomeComponent {
     this.patchNoteModal.openModal();
   }
 
-  openModalLog() {
+  openModalLogin() {
     
     this.loginModal.openModal();
+  }
+
+  openModalProfile() {
+    this.profileModal.openModal();
   }
 }

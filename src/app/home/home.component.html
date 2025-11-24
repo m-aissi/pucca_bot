@@ -3,7 +3,14 @@
 <div id="main-container">
   <div class="main-wrapper">
     <div class="d-flex flex-column mb-3 main-flex-container">
-        <i class="bi bi-person-fill mx-4 my-2 fs- align-self-end help-icon"  (click)="openModalLog()"></i> 
+        <div class=" help-icon align-self-end mb-auto mt-3 fw-lighter help-text ">
+              <span  >{{ currentUser?.username }}</span>
+              <i class="bi bi-person-fill mx-4 my-2  logger-icon size-login"  (click)="openModalProfile()">         </i> 
+    
+            </div>
+                <div class=" help-icon  logger-icon align-self-end mb-auto mt-3 fw-lighter help-text">
+              <i class="bi bi-person-fill mx-4 my-2 size-login"  (click)="openModalProfile()">         </i> 
+        </div>
         <div class="align-self-center mb-auto mt-5 fw-lighter clock-container" style="z-index: 999;" id="clock"> 
             {{currentTime}} 
         </div>
@@ -22,4 +29,9 @@
 
 <app-login-modal>
 </app-login-modal>
+
+<app-profile-modal>
+</app-profile-modal>
+
 <router-outlet></router-outlet>
+

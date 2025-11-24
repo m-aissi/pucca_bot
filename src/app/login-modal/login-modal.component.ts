@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { OnInit, AfterViewInit } from '@angular/core';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-login-modal',
@@ -20,7 +21,7 @@ export class LoginModalComponent implements OnInit, AfterViewInit {
 
   isRegisterValid: boolean = false;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private auth: AuthService) {}
   ngOnInit() {
     // Initialisation
   }
@@ -44,10 +45,9 @@ export class LoginModalComponent implements OnInit, AfterViewInit {
   }
 
   closeModal() {
-    const modal = new (window as any).bootstrap.Modal(
-      document.getElementById('loginModal')
-    );
-    modal.hide();
+    const modalElement = document.getElementById('loginModal');
+    const modalInstance = (window as any).bootstrap.Modal.getInstance(modalElement);
+    modalInstance.hide();
   }
 
   displayRegister() {
@@ -60,18 +60,21 @@ export class LoginModalComponent implements OnInit, AfterViewInit {
   
   login() {
     console.log('login');
-      this.http.post('http://176.186.145.154:3000/api/loggin', {
-        username: this.userNameInput,
-        password: this.passwordInput,
-  
-      }).subscribe({
-        next: (res) => {
-          //todo: logique après inscription réussie
-        },
-        error: (err) => {
-          //todo : afficher la bonne erreur plus tard
-        }
-      });
+    this.http.post('http://176.186.145.154:3000/api/loggin', {
+      username: this.userNameInput,
+      password: this.passwordInput,
+    }).subscribe({
+      next: (res: any) => {
+        const user = res?.body ?? res; // adapte selon le format de ta réponse
+        this.auth.setUser(user);
+        this.closeModal();
+        
+
+      },
+      error: (err) => {
+        this.errorMsg = true;
+      }
+    });
   }
 
 

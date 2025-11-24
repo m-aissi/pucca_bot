@@ -10,6 +10,7 @@ import { PatchNoteModalComponent } from './patch-note-modal/patch-note-modal.com
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { HomeComponent } from './home/home.component';
 import { LoginModalComponent } from './login-modal/login-modal.component';
+import { ProfileModalComponent } from './profile-modal/profile-modal.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { LoginModalComponent } from './login-modal/login-modal.component';
     AdminDashboardComponent,
     HomeComponent,
     LoginModalComponent,
+    ProfileModalComponent,
   ],
   imports: [
     BrowserModule,
